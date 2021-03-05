@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  mqtt-pubsub:
+    container_name: mqtt-pubsub
+    image: eclipse-mosquitto
+    hostname: eclipse-mosquitto
+    restart: always
+    volumes:
+      - /mosquitto/config:/mosquitto/config
+      - /mosquitto/data:/mosquitto/data
+      - /mosquitto/log:/mosquitto/log
+    expose:
+      - "1883"
+      - "9001"
+    ports:
+      - 1883:1883
+      - 9001:9001
+    network_mode: "host"
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "timeout -t 5 mosquitto_sub -t '$$SYS/#' -C 1 | grep -v Error || exit 1",
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 6
